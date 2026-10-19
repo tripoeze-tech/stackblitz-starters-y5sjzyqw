@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Territorio en juego: duelo de equipos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bitter:wght@600;800&display=swap">
+<style>
+:root{--bg:#EEF3F1;--card:#fff;--ink:#1D2A2E;--mut:#4F6269;--line:#C5D3D5;--a:#1F6F8B;--b:#B3611C;--ok:#2B7A4B;--bad:#A5432F;--btn:#1D2A2E;--bi:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0F1B1F;--card:#17282E;--ink:#E5EEF0;--mut:#9DB3B9;--line:#2B434A;--a:#6DBAD6;--b:#EBA55F;--ok:#86C694;--bad:#EE9A84;--btn:#E5EEF0;--bi:#0F1B1F}}
+:root[data-theme="dark"]{--bg:#0F1B1F;--card:#17282E;--ink:#E5EEF0;--mut:#9DB3B9;--line:#2B434A;--a:#6DBAD6;--b:#EBA55F;--ok:#86C694;--bad:#EE9A84;--btn:#E5EEF0;--bi:#0F1B1F}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:680px;margin:0 auto;padding:18px 16px 40px}
+h1,h2{font-family:Bitter,Georgia,serif;line-height:1.2;margin:0 0 10px}
+h1{font-size:2.2rem;font-weight:800}h2{font-size:1.3rem;font-weight:600;outline:none}
+p{margin:0 0 10px}.mut{color:var(--mut)}
+button,input{font:inherit}button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--b);outline-offset:2px}
+.go{background:var(--btn);color:var(--bi);border:0;border-radius:8px;padding:12px 22px;font-weight:700}
+input{width:100%;padding:10px 12px;border:2px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);margin:6px 0 12px}
+.board{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.team{background:var(--card);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+.team.t0{border-left:8px solid var(--a)}.team.t1{border-left:8px solid var(--b)}
+.team.on{border-width:3px;border-left-width:8px;box-shadow:0 0 0 2px var(--ink) inset}
+.team b{display:block;font-family:Bitter,Georgia,serif}
+.pts{font-size:2rem;font-weight:700;font-family:Bitter,Georgia,serif}
+.meter{height:6px;background:var(--line);border-radius:3px;overflow:hidden}.meter i{display:block;height:100%;background:var(--ink)}
+.tag{display:inline-block;border:2px solid var(--ink);border-radius:20px;padding:1px 12px;font-size:.9rem;margin-bottom:10px}
+#opts{display:grid;gap:10px;margin:14px 0}
+.opt{text-align:left;background:var(--card);color:var(--ink);border:2px solid var(--line);border-radius:8px;padding:12px 14px}
+.opt:hover:not(:disabled){border-color:var(--ink)}.opt:disabled{color:var(--ink);cursor:default}
+.opt.ok{border:3px solid var(--ok)}.opt.bad{border:3px dashed var(--bad)}
+.fb{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--ink);border-radius:8px;padding:12px 14px;margin-top:12px}
+.fb strong{font-family:Bitter,Georgia,serif}
+ul{padding-left:20px}
+@media (max-width:420px){.board{grid-template-columns:1fr}}
+</style>
+<style>
+:root{--sky:#DCEBF0;--hl1:#B9D3A4;--hl2:#8DB98A;--sun:#E8B63B;--rv:#4A93AE}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky:#16303A;--hl1:#27483A;--hl2:#1E3A2F;--sun:#E6B84A;--rv:#4C8CA3}}
+:root[data-theme="dark"]{--sky:#16303A;--hl1:#27483A;--hl2:#1E3A2F;--sun:#E6B84A;--rv:#4C8CA3}
+body{background-image:radial-gradient(var(--line) 1px,transparent 1.2px);background-size:22px 22px}
+.sky{margin:0 0 16px;border-radius:14px;overflow:hidden;border:2px solid var(--ink)}
+.sky svg{display:block;width:100%;height:120px}
+.s0{fill:var(--sky)}.sun{fill:var(--sun)}.h1{fill:var(--hl1)}.h2{fill:var(--hl2)}
+.rv{fill:none;stroke:var(--rv);stroke-width:9;stroke-linecap:round}
+.ws path{fill:none;stroke:var(--b);stroke-width:2.5;stroke-linecap:round}
+h1{font-size:2.6rem}
+.team{border-radius:14px;box-shadow:0 3px 0 var(--line)}
+.team b::before{content:"";display:inline-block;width:14px;height:14px;border-radius:50%;margin-right:8px;background:var(--a)}
+.team.t1 b::before{background:var(--b)}
+.meter{height:8px;border-radius:4px}.meter i{background:linear-gradient(90deg,var(--a),var(--b))}
+.dots{display:flex;gap:6px;margin-top:8px}.dots i{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink)}.dots i.f{background:var(--ink)}
+.tag{font-weight:700;background:var(--card)}
+.tbar{height:10px;border-radius:5px;background:var(--line);overflow:hidden;margin:6px 0 14px}
+.tbar i{display:block;height:100%;width:0;background:var(--ok);transition:width 1s linear}.tbar i.low{background:var(--bad)}
+#q{background:var(--card);border:2px solid var(--ink);border-radius:14px;padding:16px 18px;box-shadow:4px 4px 0 var(--ink)}
+#opts{counter-reset:o}
+.opt{counter-increment:o;display:flex;gap:12px;align-items:center;border-radius:12px;box-shadow:0 3px 0 var(--line)}
+.opt::before{content:counter(o,upper-alpha);flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:700;font-family:Bitter,Georgia,serif}
+.opt:active:not(:disabled){transform:translateY(2px);box-shadow:none}
+.fb{border-radius:14px;border-left-width:8px}
+.go{border-radius:30px;box-shadow:0 4px 0 var(--line)}
+.trophy{width:84px;height:84px;display:block;margin-bottom:6px}.trophy path,.trophy rect{fill:var(--sun);stroke:var(--ink);stroke-width:2}
+#end{position:relative;overflow:hidden}#conf{position:absolute;inset:0;pointer-events:none}
+#conf span{position:absolute;top:-12px;width:9px;height:14px;animation:fall 3.2s linear forwards}
+@keyframes fall{to{transform:translateY(520px) rotate(540deg);opacity:0}}
+.turn{font-family:Bitter,Georgia,serif;font-weight:800;font-size:1.3rem;padding:8px 14px;border-radius:12px;background:var(--card);border:2px solid var(--ink);margin-bottom:10px}
+.turn.t0{border-left:10px solid var(--a)}.turn.t1{border-left:10px solid var(--b)}
+html{-webkit-text-size-adjust:100%}button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+input{font-size:16px}.opt{min-height:52px}.go{min-height:48px}
+@media (max-width:480px){body{font-size:17px}h1{font-size:2.1rem}main{padding:12px 12px 32px}.sky svg{height:90px}#q{padding:14px}}
+@media (prefers-reduced-motion:reduce){#conf span{display:none}.tbar i{transition:none}}
+</style>
+</head>
+<body>
+<main>
+<header class="sky" aria-hidden="true"><svg viewBox="0 0 680 130" preserveAspectRatio="xMidYMid slice"><rect width="680" height="130" class="s0"/><circle cx="590" cy="38" r="20" class="sun"/><path d="M0 96Q120 60 240 90T480 84T680 70V130H0Z" class="h1"/><path d="M0 112Q160 84 320 108T680 98V130H0Z" class="h2"/><path d="M-10 122C80 104 140 134 230 118S360 104 430 120S600 112 690 118" class="rv"/><g class="ws"><path d="M60 118V80M52 92q8-6 8 0M68 86q-8-6-8 0M52 102q8-6 8 0M68 96q-8-6-8 0M130 124V92M122 104q8-6 8 0M138 98q-8-6-8 0M520 120V84M512 96q8-6 8 0M528 90q-8-6-8 0M512 106q8-6 8 0M528 100q-8-6-8 0"/></g></svg></header>
+<section id="setup">
+<h1>Territorio en juego</h1>
+<p class="mut">Duelo de equipos sobre agroquímicos, salud y territorio. Ambiente, producción y salud en una sola cancha.</p>
+<label for="n0">Nombre del primer grupo</label><input id="n0" placeholder="Ej.: Grupo 4" maxlength="20" autocomplete="off">
+<label for="n1">Nombre del segundo grupo</label><input id="n1" placeholder="Ej.: Grupo 2" maxlength="20" autocomplete="off">
+<h2>Reglas</h2>
+<ul>
+<li>Cada equipo juega un turno. Si responde bien, suma 10 puntos y sigue jugando, hasta un máximo de 3 aciertos seguidos; si falla, o llega a 3 aciertos seguidos, pasa el turno.</li>
+<li>Hay preguntas de opción múltiple, de verdadero o falso y de aproximación (una de cada cuatro preguntas). Cada equipo tiene 45 segundos para responder; si se acaba el tiempo, la respuesta cuenta como incorrecta.</li>
+<li>En las de aproximación responden los dos equipos con un número: gana quien se acerque más, suma 10 puntos y le resta 10 al rival. Si empatan, o si ninguno responde a tiempo, nadie suma ni resta y pasa el turno.</li>
+<li>Gana el primero que llega a 50 puntos. Si se acaban las 40 preguntas, gana el que tenga más puntos.</li>
+</ul>
+<button class="go" id="start" type="button">Empezar el duelo</button>
+<p class="mut" id="jswarn">Si el botón no responde, abrí esta página desde el navegador (Chrome o Safari), no desde WhatsApp ni desde una vista previa.</p>
+</section>
+
+<section id="game" hidden>
+<div class="board" id="board"></div>
+<div class="turn" id="turn"></div>
+<span class="tag" id="tag"></span>
+<p class="mut" id="clock"></p><div class="tbar"><i id="tb"></i></div>
+<h2 id="q" tabindex="-1"></h2>
+<div id="opts"></div>
+<div id="apx" hidden>
+<label for="num" id="who"></label>
+<input id="num" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" style="-webkit-text-security:disc">
+<button class="go" id="ok" type="button">Confirmar respuesta</button>
+</div>
+<div class="fb" id="fb" hidden aria-live="polite"><p id="vd"></p><p id="ex"></p><button class="go" id="nx" type="button">Continuar</button></div>
+</section>
+
+<section id="end" hidden>
+<div id="conf"></div><svg class="trophy" viewBox="0 0 64 64" aria-hidden="true"><path d="M18 8h28v14a14 14 0 0 1-28 0z"/><path d="M18 12H8c0 10 4 16 12 18M46 12h10c0 10-4 16-12 18" style="fill:none"/><rect x="28" y="36" width="8" height="10"/><rect x="20" y="46" width="24" height="8" rx="2"/></svg><h1 id="win"></h1><p id="fin"></p>
+<button class="go" id="again" type="button">Jugar otra vez</button>
+<p class="mut" style="margin-top:20px">Fuentes: Avila-Vazquez y Difilippo (2016); Cuzziol Boccioni et al. (2025); CONICET (2009); Montoya et al. (INTA, 2023); Análisis Digital (2026); El Diario (2026); Página/12 (2015); Infocampo (2016); Bichos de Campo (2024, 2025); La Voz de San Justo (2026); Ley 25.675 (2002). Grupo 4, Proyecto Territorio Vivo.</p>
+</section>
+</main>
+<script>
+var MC=[
+["¿En qué año se sancionó la Ley provincial 11.178 de Buenas Prácticas en Fitosanitarios?",["2024","2022","2023","2025"],"Fue sancionada en diciembre de 2024."],
+["¿Qué organismo clasificó al glifosato como «probablemente cancerígeno» (grupo 2A) en 2015?",["La IARC","El INTA","El CONICET","El SENASA"],"Lo hizo la Agencia Internacional de Investigación sobre el Cáncer, con evidencia limitada en humanos."],
+["En las zonas de amortiguamiento cerca de escuelas rurales solo pueden usarse productos de las clases toxicológicas…",["III y IV","I y II","II y III","Cualquier clase"],"Son las de menor peligrosidad."],
+["¿Qué hizo el STJ de Entre Ríos el 15 de septiembre de 2026?",["Anuló la sentencia de la Cámara","Aumentó las distancias a 3.000 metros","Prohibió los agroquímicos en toda la provincia","Derogó la Ley 11.178"],"Dijo que un tribunal no puede reemplazar el régimen legal sin declarar su inconstitucionalidad."],
+["En 2009, ¿qué reconoció el CONICET sobre el glifosato y la salud humana?",["Que faltaban datos locales para una conclusión definitiva","Que era totalmente inocuo","Que causaba cáncer comprobado","Que debía prohibirse"],"Reconoció que no había datos suficientes en la Argentina."],
+["¿Por qué los anfibios sirven como indicadores de salud ambiental?",["Tienen piel muy permeable y vida ligada al agua","Son muy resistentes a los tóxicos","Viven solo en zonas urbanas","No se reproducen en arroyos"],"Absorben contaminantes por la piel y dependen del agua."],
+["¿Qué advirtieron las fiscales en el caso de Diamante?",["Que no se hicieron estudios integrales de impacto ambiental ni monitoreos del agua","Que no existían vecinos afectados","Que la ley era inconstitucional","Que no había escuelas cerca"],"Lo señalaron desde el primer fallo de 2024."],
+["¿Qué dice el principio precautorio (Ley 25.675, art. 4)?",["La falta de certeza científica no debe postergar medidas eficaces ante un daño grave o irreversible","Hay que prohibir todo lo riesgoso","Hay que esperar pruebas definitivas","Solo actúa el que contamina"],"Precaución no es prohibición automática: es actuar con proporción."],
+["¿Cuál es el camino que propone el INTA para los fitosanitarios?",["Reducción gradual con manejo integrado de plagas y rotaciones","Prohibición inmediata","Mantener todo igual","Duplicar las dosis"],"Reconoce que sin ellos habría pérdidas, pero propone producir con menor impacto."],
+["¿Qué problema tiene la siembra directa, según un técnico del INTA?",["Protege del arado pero necesita herbicidas","Aumenta la erosión","No sirve para la soja","Elimina las malezas sin químicos"],"Evita la erosión del arado, pero depende de herbicidas."],
+["En Monte Maíz (Córdoba), ¿dónde hallaron más contaminación?",["Dentro del pueblo, por depósitos y polvo de silos","En los campos cultivados","En el agua de lluvia","En ningún lugar"],"Muestra que la exposición no depende solo de la distancia de pulverización."],
+["¿Cuál es un ejemplo de plaguicida prohibido que se acumulaba en las cadenas tróficas?",["DDT","Glifosato","Agua oxigenada","Urea"],"Los organoclorados como el DDT se magnificaban a lo largo de la cadena."],
+["¿Qué fijó el STJ en 2024 en el caso «Rosso I» para Tierra Alta?",["1.095 y 3.000 metros, de modo condicionado","100 metros","Una prohibición total","Ninguna distancia"],"Quedaba sujeto a estudios y a una norma posterior."],
+["Un estudio observacional como el de Monte Maíz muestra…",["Asociaciones, no causalidad","Causalidad probada","Nada útil","Solo datos del clima"],"Sirve para alertar, pero no prueba por sí solo la causa."],
+["¿Cuál de estas NO es una alternativa para reducir agroquímicos?",["Aumentar la dosis cada año","Rotación de cultivos","Cultivos de cobertura","Manejo integrado de plagas"],"Más dosis suele generar más resistencia."],
+["¿En qué localidades del departamento Diamante ocurrió el conflicto de 2026?",["Colonia Ensayo y Aldea Brasilera","Crespo y Viale","Victoria y Rosario del Tala","Villaguay y Colón"],"Los loteos de Tierra Alta y una vivienda de Aldea Brasilera."],
+["¿Cómo calificó Federación Agraria la primera sentencia?",["Irracional","Ejemplar","Insuficiente","Histórica"],"Sostuvo que en Colonia Ensayo la aplicación nunca se había realizado."],
+["¿Qué diferencia hay entre peligro y riesgo?",["Peligro es lo que puede causar; riesgo, la probabilidad en una exposición real","Son sinónimos","Riesgo es solo ambiental","Peligro es solo legal"],"Por eso la IARC y el comité FAO/OMS no se contradicen."]
+];
+var VF=[
+["La falta de certeza científica no debe usarse para postergar medidas eficaces ante un peligro grave.",true,"Es el principio precautorio de la Ley General del Ambiente."],
+["Un mayor volumen de agroquímicos equivale siempre a un mayor riesgo.",false,"Cada producto tiene una toxicidad distinta."],
+["El estudio de los arroyos entrerrianos prueba que una aplicación puntual causó el daño.",false,"Los autores hablan de contaminación compleja: urbana, industrial y agrícola."],
+["Entre 1990 y 2010 la superficie con cereales y oleaginosas creció cerca de un 50 % y el rendimiento un 34 %.",true,"Mientras tanto, el uso de agroquímicos creció mucho más."],
+["La IARC y el comité FAO/OMS se contradicen sobre el glifosato.",false,"Una identifica un peligro; el otro evalúa un riesgo concreto."],
+["La Ley 11.178 fija 100 metros de exclusión terrestre en zonas sensibles.",true,"Y 150 metros en escuelas rurales."],
+["El STJ dijo que rechazar los amparos implica desatender la protección ambiental.",false,"Aclaró lo contrario y dejó abiertas otras vías."],
+["En Monte Maíz hubo más contaminación dentro del pueblo que en los campos.",true,"Por depósitos de envases y polvo de silos."],
+["Según el INTA, sin fitosanitarios no habría pérdidas por plagas.",false,"Reconoce que las pérdidas serían significativas."],
+["Un círculo de 1.095 m de radio abarca unas 120 veces más superficie que uno de 100 m.",true,"Unas 377 hectáreas contra unas 3."],
+["Los anfibios son buenos indicadores de la salud de un ambiente acuático.",true,"Su piel permeable los hace sensibles."],
+["El principio precautorio significa prohibir automáticamente toda actividad riesgosa.",false,"Significa actuar con proporción mientras se produce evidencia."]
+];
+var AP=[
+["¿Cuántos por ciento aumentó el uso de agroquímicos entre 1996 y 2015?",823,"%","De 39 a 360 millones de kilos o litros."],
+["¿Cuántos microgramos de glifosato por kilo se hallaron en los sedimentos de Las Conchas?",5002,"µg/kg","La mayor concentración registrada en Sudamérica."],
+["¿Cuántos metros de distancia fijó la sentencia de la Cámara para aplicaciones terrestres?",1095,"m","El STJ la anuló en septiembre de 2026."],
+["¿Cuántas hectáreas abarca, aproximadamente, un círculo de 1.095 m de radio?",377,"ha","π × 1,095² km², unas 377 hectáreas."],
+["¿Qué porcentaje de las exportaciones argentinas aportó la agroindustria en 2024?",58,"%","Según la Bolsa de Comercio de Rosario."],
+["¿Cuántos casos de cáncer cada 100.000 habitantes reportó el estudio de Monte Maíz?",2202,"casos","Frente a 883 a nivel nacional."],
+["¿Cuántos millones de kilos o litros de agroquímicos se usaron en 2015?",360,"millones","Era de 39 millones en 1996."],
+["¿Cuántos metros de exclusión terrestre fija la Ley 11.178 en escuelas rurales?",150,"m","15 m para equipos manuales y 500 m para aéreos."],
+["¿En qué año clasificó la IARC al glifosato como «probablemente cancerígeno»?",2015,"año","Grupo 2A."],
+["¿Qué porcentaje del valor agregado bruto del país aportó la agroindustria en 2024?",18,"%","Según la Bolsa de Comercio de Rosario."]
+];
+var N=["",""],S=[0,0],cur=0,deck=[],idx=0,locked=false,cq=null,apv=[],GOAL=50;
+function $(i){return document.getElementById(i)}
+var tmr=null,left=0,st=0;
+function tick(on,fn){clearInterval(tmr);if(!on){$("clock").textContent="";$("tb").style.width="0";return}left=45;var r=function(){$("clock").textContent="Tiempo: "+left+" s";$("tb").style.width=(left/45*100)+"%";$("tb").className=left<=10?"low":""};r();tmr=setInterval(function(){left--;r();if(left<=0){clearInterval(tmr);fn()}},1000)}
+function show(i){["setup","game","end"].forEach(function(x){$(x).hidden=x!==i});window.scrollTo(0,0)}
+function shuf(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function fmt(n){return n.toLocaleString("es-AR")}
+function board(){
+ $("board").replaceChildren();
+ for(var t=0;t<2;t++){
+  var d=document.createElement("div");d.className="team t"+t+(t===cur?" on":"");
+  var b=document.createElement("b");b.textContent=N[t]+(t===cur?" · su turno":"");
+  var p=document.createElement("span");p.className="pts";p.textContent=S[t];
+  var m=document.createElement("div");m.className="meter";var f=document.createElement("i");f.style.width=Math.min(100,S[t]/GOAL*100)+"%";m.appendChild(f);
+  var dots=document.createElement("div");dots.className="dots";dots.setAttribute("role","img");dots.setAttribute("aria-label","Racha: "+(t===cur?st:0)+" de 3");for(var z=0;z<3;z++){var i2=document.createElement("i");if(t===cur&&z<st)i2.className="f";dots.appendChild(i2)}d.append(b,p,m,dots);$("board").appendChild(d);
+ }
+}
+function start(){
+ N=[$("n0").value.trim()||"Grupo A",$("n1").value.trim()||"Grupo B"];S=[0,0];cur=0;idx=0;st=0;
+ var all=[];MC.forEach(function(q){all.push({t:"mc",q:q})});VF.forEach(function(q){all.push({t:"vf",q:q})});AP.forEach(function(q){all.push({t:"ap",q:q})});
+ var oth=shuf(all.filter(function(x){return x.t!=="ap"})),aps=shuf(all.filter(function(x){return x.t==="ap"}));deck=[];for(var k=0;k<10;k++){deck.push(oth[3*k],oth[3*k+1],oth[3*k+2],aps[k])}show("game");next();
+}
+function next(){
+ if(S[0]>=GOAL||S[1]>=GOAL||idx>=deck.length)return finish();
+ cq=deck[idx++];locked=false;board();$("fb").hidden=true;$("opts").replaceChildren();$("apx").hidden=true;
+ var q=cq.q;
+ var tt=cq.t==="mc"?"🎯 Opción múltiple":cq.t==="vf"?"⚖️ Verdadero o falso":"📏 Aproximación: juegan los dos equipos";$("tag").textContent=tt+" · pregunta "+idx+" de "+deck.length;var tn=$("turn");tn.textContent=cq.t==="ap"?"Aproximación: responden los dos equipos. Empieza "+N[cur]+".":"Turno de "+N[cur];tn.className="turn t"+cur;
+ $("q").textContent=cq.t==="vf"?"¿Verdadero o falso? "+q[0]:q[0];
+ if(cq.t==="mc"){
+  var o=shuf(q[1].map(function(t,i){return{t:t,c:i===0}}));
+  o.forEach(function(x){var b=document.createElement("button");b.type="button";b.className="opt";b.textContent=x.t;b.dataset.c=x.c?"1":"0";b.addEventListener("click",function(){pick(b)});$("opts").appendChild(b)});
+ }else if(cq.t==="vf"){
+  [["Verdadero",true],["Falso",false]].forEach(function(x){var b=document.createElement("button");b.type="button";b.className="opt";b.textContent=x[0];b.dataset.c=(x[1]===q[1])?"1":"0";b.addEventListener("click",function(){pick(b)});$("opts").appendChild(b)});
+ }else{apv=[];ask(cur)}
+ if(cq.t!=="ap"){tick(true,function(){pick(null)});$("q").focus()}
+}
+function pick(b){
+ tick(false);if(locked)return;locked=true;var ok=!!b&&b.dataset.c==="1";
+ Array.prototype.forEach.call($("opts").children,function(x){x.disabled=true;if(x.dataset.c==="1"){x.classList.add("ok");x.textContent="✓ "+x.textContent}});
+ if(!ok&&b){b.classList.add("bad");b.textContent="✗ "+b.textContent}
+ var lim=false;if(ok){S[cur]+=10;st++;if(st>=3)lim=true}
+ $("vd").innerHTML="";var s=document.createElement("strong");s.textContent=ok?N[cur]+(lim?": ¡correcto! +10 puntos. Llegó a 3 aciertos seguidos: pasa el turno.":": ¡correcto! +10 puntos, sigue su turno."):N[cur]+(b?": incorrecto. Pasa el turno.":": se acabó el tiempo. Pasa el turno.");$("vd").appendChild(s);
+ $("ex").textContent=cq.q[2];
+ if(!ok||lim){cur=1-cur;st=0}board();$("fb").hidden=false;$("nx").focus();
+}
+function ask(t){
+ $("apx").hidden=false;$("who").textContent=N[t]+": escribí tu número ("+cq.q[2]+"). Nadie debe mirar.";$("num").value="";$("num").focus();tick(true,function(){conf(true)});
+}
+function conf(to){
+ var v=parseFloat(String($("num").value).replace(",","."));
+ if(isNaN(v)){if(!to){$("num").focus();return}v=null}
+ tick(false);apv.push(v);
+ if(apv.length===1){ask(1-cur);return}
+ $("apx").hidden=true;
+ var a=cq.q[1],d0=apv[0]===null?Infinity:Math.abs(apv[0]-a),d1=apv[1]===null?Infinity:Math.abs(apv[1]-a),w=cur,l=1-cur,msg;
+ var dc=d0,do_=d1;
+ var first=cur,second=1-cur,res="";
+ res=N[first]+" respondió "+(apv[0]===null?"nada":fmt(apv[0]))+" y "+N[second]+" respondió "+(apv[1]===null?"nada":fmt(apv[1]))+". Respuesta correcta: "+fmt(a)+" "+cq.q[2]+". ";
+ if(dc===do_){msg="Empate: nadie suma ni resta. Pasa el turno.";cur=second;st=0}
+ else{w=dc<do_?first:second;l=1-w;S[w]+=10;S[l]=Math.max(0,S[l]-10);st=(w===first)?st+1:1;if(st>=3){msg=N[w]+" estuvo más cerca: +10 puntos, y "+N[l]+" pierde 10. "+N[w]+" llegó a 3 aciertos seguidos: pasa el turno.";cur=l;st=0}else{msg=N[w]+" estuvo más cerca: +10 puntos, y "+N[l]+" pierde 10. "+N[w]+" sigue jugando.";cur=w}}
+ $("vd").innerHTML="";var s=document.createElement("strong");s.textContent=res+msg;$("vd").appendChild(s);
+ $("ex").textContent=cq.q[3];board();$("fb").hidden=false;$("nx").focus();
+}
+function finish(){
+ show("end");var w=S[0]===S[1]?-1:(S[0]>S[1]?0:1);
+ $("win").textContent=w<0?"Empate":"Ganó "+N[w];
+ $("fin").textContent=N[0]+": "+S[0]+" puntos. "+N[1]+": "+S[1]+" puntos.";var cf=$("conf");cf.replaceChildren();if(w>=0){for(var c=0;c<28;c++){var sp=document.createElement("span");sp.style.left=(Math.random()*100)+"%";sp.style.animationDelay=(Math.random()*1.5)+"s";sp.style.background=["#1F6F8B","#D9A62E","#B3611C","#3F7D4B"][c%4];cf.appendChild(sp)}}
+}
+$("start").addEventListener("click",start);$("nx").addEventListener("click",next);$("ok").addEventListener("click",function(){conf(false)});$("again").addEventListener("click",function(){show("setup")});$("jswarn").hidden=true;
+$("num").addEventListener("keydown",function(e){if(e.key==="Enter")conf()});
+</script>
+</body>
+</html>
